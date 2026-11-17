@@ -1,26 +1,612 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="./style.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  </head>
-  <style>
-    .ibm-plex-mono-bold {
-      font-family: "IBM Plex Mono", monospace;
-      font-weight: 700;
-      font-style: normal
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DJ Beck — Security</title>
+<meta name="description" content="DJ Beck — cybersecurity student. Certifications, skills and contact.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f2f2f2;
+    --surface: #ffffff;
+    --ink: #111111;
+    --muted: #8a8a8a;
+    --line: #d9d9d9;
+    --accent: #12a150;      /* terminal green, readable on light gray */
+    --gutter: clamp(16px, 2vw, 32px);
+    --sans: "Inter Tight", system-ui, -apple-system, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; }
+  img { display: block; max-width: 100%; }
+
+  /* ---------- Header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 10;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 18px var(--gutter);
+    background: var(--bg);
+    border-bottom: 2px solid #555;
+  }
+  .logo { font-weight: 600; font-size: 22px; letter-spacing: -0.03em; text-decoration: none; }
+  .logo span { color: var(--accent); }
+  .status { font-family: var(--mono); font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  nav { justify-self: end; display: flex; gap: 20px; font-size: 15px; font-weight: 500; }
+  nav a { text-decoration: none; position: relative; }
+  nav a::after {
+    content: ""; position: absolute; left: 0; bottom: -4px;
+    width: 4px; height: 4px; border-radius: 50%; background: var(--ink);
+    transition: width .25s ease;
+  }
+  nav a:hover::after { width: 100%; height: 2px; border-radius: 0; background: var(--accent); }
+
+  /* ---------- Hero ---------- */
+  .hero {
+    min-height: calc(100vh - 66px);
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    padding: 16px var(--gutter) 0;
+  }
+  .term {
+    font-family: var(--mono);
+    font-size: clamp(15px, 1.35vw, 20px);
+    line-height: 1.7;
+    max-width: 640px;
+    min-height: 9.5em;           /* reserve space so nothing jumps while typing */
+  }
+  .term-line { white-space: pre-wrap; }
+  .term.layered { display: grid; min-height: 0; }
+  .term.layered > .ghost, .term.layered > .live { grid-area: 1 / 1; }
+  .term .ghost { visibility: hidden; }
+  .term .prompt { color: var(--accent); }
+  .term .cmd { color: var(--ink); font-weight: 500; }
+  .term .out { color: #555; display: block; margin-bottom: 0.6em; }
+  .term .caret {
+    display: inline-block; width: 0.6em; height: 1.1em;
+    background: var(--ink); vertical-align: -0.2em;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .search-line { display: flex; align-items: center; }
+  .term-input-wrap {
+    position: relative; display: inline-flex; align-items: center;
+    width: 100%; max-width: 20em; height: 1.1em;
+  }
+  .term-input {
+    background: none; border: none; outline: none; padding: 0; margin: 0;
+    font-family: var(--mono); font-size: inherit; font-weight: 500; line-height: 1.1;
+    color: var(--ink); caret-color: transparent;
+    width: 100%; height: 1.1em;
+  }
+  .term-input::placeholder { color: #b5b5b5; }
+  .term-input-wrap .caret {
+    position: absolute; top: 50%; left: 0; transform: translateY(-50%);
+    display: none; pointer-events: none;
+  }
+  .term-input-wrap.focused .caret { display: inline-block; }
+  .dim { color: #b5b5b5; }
+  .hero-intro {
+    max-width: 560px;
+    font-size: clamp(26px, 2.4vw, 34px);
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+  .u { text-decoration: underline; text-decoration-color: var(--accent); text-decoration-thickness: 2px; text-underline-offset: 5px; }
+  .hero-side {
+    align-self: center;
+    justify-self: end;
+    width: min(380px, 100%);
+    margin-right: 10vw;
+    padding: 48px 0;
+  }
+  .tag { font-family: var(--mono); font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+  .hero-side p { font-size: 18px; line-height: 1.45; margin-bottom: 40px; }
+  .hero-side .pill { font-family: var(--mono); font-weight: 400; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 14px;
+    padding: 5px 20px 5px 5px;
+    background: var(--surface);
+    border-radius: 999px;
+    font-size: 14px; font-weight: 500;
+    text-decoration: none;
+    transition: transform .2s ease;
+  }
+  .pill:hover { transform: translateX(4px); }
+  .pill i {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: var(--ink); color: #fff;
+    display: grid; place-items: center; font-style: normal;
+    transition: background .2s ease;
+  }
+  .pill:hover i { background: var(--accent); }
+
+  .mega {
+    font-weight: 500;
+    font-size: 20vw;
+    line-height: 0.82;
+    letter-spacing: -0.045em;
+    margin-left: -0.05em;
+    padding-bottom: 2vw;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .mega .slash {
+    color: var(--accent); font-weight: 400;
+    margin-left: 0.06em;
+    display: inline-block;
+    font-size: 0.84em;            /* shrink to cap height so it doesn't drop into SECURITY */
+    transform: translateY(-0.11em);
+  }
+
+  /* ---------- Sections ---------- */
+  section.block {
+    border-top: 1px solid var(--line);
+    padding: 96px var(--gutter);
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 32px;
+  }
+  .label { font-family: var(--mono); font-size: 13px; color: var(--muted); }
+  .label b { color: var(--ink); font-weight: 500; }
+  .about p {
+    font-size: clamp(24px, 2.6vw, 38px);
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    max-width: 22em;
+  }
+  .about p + p { margin-top: 1em; font-size: 18px; letter-spacing: 0; max-width: 34em; color: #333; }
+
+  /* ---------- Certs grid ---------- */
+  .certs-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 32px; }
+  .certs-head h2 { font-size: clamp(40px, 5vw, 72px); font-weight: 500; letter-spacing: -0.04em; line-height: 1; }
+  .certs-head h2 sup { font-size: 0.3em; color: var(--accent); font-weight: 400; vertical-align: 1.6em; margin-left: 4px; }
+  .hint { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+
+  .cert-grid {
+    grid-column: 1 / -1;                       /* span the whole section */
+    margin: 0 calc(-1 * var(--gutter));        /* bleed past the side padding to the screen edges */
+    display: grid;
+    --cols: 4;                                 /* cards per row; changes with screen width below */
+    grid-template-columns: repeat(var(--cols), 1fr);
+    grid-auto-flow: dense;
+    border-top: 1px solid var(--line);
+  }
+  @media (max-width: 1200px) { .cert-grid { --cols: 3; } }
+  @media (max-width: 900px)  { .cert-grid { --cols: 2; } }
+  @media (max-width: 560px)  { .cert-grid { --cols: 1; } }
+  .cert:not(.open) { aspect-ratio: 1 / 1; }   /* square cards */
+  .cert { container-type: inline-size; }     /* lets sizes below scale with the card's width */
+  .cert {
+    background: var(--bg);
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    transition: background .2s ease;
+  }
+  .cert:hover { background: var(--surface); }
+  .cert-toggle {
+    all: unset; box-sizing: border-box;
+    display: flex; flex-direction: column;
+    width: 100%; height: 100%;
+    padding: 24px;
+    cursor: pointer;
+  }
+  /* Image box is a fixed share of the card width */
+  .cert-toggle .cert-img { flex: none; height: 50cqi; aspect-ratio: auto; margin-bottom: 16px; }
+  .cert-toggle .cert-img img { width: 34cqi; height: 34cqi; max-width: none; max-height: none; }
+  .cert-toggle .cert-meta > span:first-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+  .cert-toggle .cert-title {
+    display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+    overflow: hidden;
+    font-size: clamp(16px, 5.4cqi, 20px);
+  }
+  .cert-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .cert-img {
+    aspect-ratio: 4 / 3;
+    display: grid; place-items: center;
+    background: var(--surface);
+    margin-bottom: 18px;
+    overflow: hidden;
+  }
+  .cert:hover .cert-img { background: var(--bg); }
+  .cert-img img { object-fit: contain; transition: transform .35s ease; }
+  .cert:hover .cert-img img { transform: scale(1.05); }
+  .cert-meta { display: flex; justify-content: space-between; gap: 12px; font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+  .cert-title { font-size: 19px; font-weight: 500; letter-spacing: -0.01em; line-height: 1.25; }
+  .cert-plus {
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  }
+  .cert-plus::before { content: "+"; font-size: 14px; line-height: 1; color: var(--accent); transition: transform .25s ease; }
+
+  /* expanded state: card spans the full row */
+  .cert.open { grid-column: 1 / -1; background: var(--surface); }
+  .cert.open .cert-toggle { display: none; }
+  .cert-detail { display: none; padding: 28px; gap: 40px; grid-template-columns: minmax(200px, 320px) 1fr; }
+  .cert.open .cert-detail { display: grid; animation: fade .3s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .cert-detail .cert-img { margin: 0; background: var(--bg); aspect-ratio: 1 / 1; align-self: start; }
+  .cert-detail .cert-img img { width: 68%; height: 68%; }
+  .cert-detail h3 { font-size: clamp(28px, 3vw, 42px); font-weight: 500; letter-spacing: -0.03em; line-height: 1.1; margin: 8px 0 16px; }
+  .cert-detail p { max-width: 36em; color: #333; margin-bottom: 24px; }
+  .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 24px; font-family: var(--mono); font-size: 13px; margin-bottom: 28px; }
+  .facts dt { color: var(--muted); }
+  .detail-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .pill.dark { background: var(--ink); color: #fff; }
+  .pill.dark i { background: var(--accent); }
+  .close {
+    all: unset; cursor: pointer;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    padding: 10px 4px;
+  }
+  .close:hover, .close:focus-visible { color: var(--ink); }
+
+  /* ---------- Skills ---------- */
+  .skills { grid-column: 2; margin-top: 32px; }
+  .skills h3 { font-size: 15px; font-weight: 500; margin-bottom: 16px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips li {
+    list-style: none;
+    font-family: var(--mono); font-size: 13px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+
+  /* ---------- Contact ---------- */
+  .contact-big {
+    display: inline-block;
+    font-size: clamp(36px, 6vw, 96px);
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    text-decoration: none;
+    background: linear-gradient(var(--accent), var(--accent)) 0 100% / 0 3px no-repeat;
+    transition: background-size .35s ease;
+    padding-bottom: 6px;
+    word-break: break-word;
+  }
+  .contact-big:hover { background-size: 100% 3px; }
+  .links { display: flex; gap: 32px; margin-top: 40px; flex-wrap: wrap; }
+  .links a { font-size: 15px; font-weight: 500; text-decoration: none; border-bottom: 1px solid var(--ink); }
+  .links a:hover { border-color: var(--accent); color: var(--accent); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 24px var(--gutter);
+    display: flex; justify-content: space-between;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 800px) {
+    header { grid-template-columns: 1fr auto; }
+    .status { display: none; }
+    .hero-side { justify-self: start; margin-right: 0; }
+    section.block { grid-template-columns: 1fr; padding: 64px var(--gutter); }
+    .skills { grid-column: 1; }
+    .cert-detail { grid-template-columns: 1fr; padding: 20px; gap: 24px; }
+    .cert-detail .cert-img { max-width: 320px; width: 100%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="#top">DJ Beck<span>.</span></a>
+  <div class="status">open to internships</div>
+  <nav>
+    <a href="#about">About</a>
+    <a href="#certs">Certs</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>
+
+<main id="top">
+  <!Hero>
+  <section class="hero">
+    <!-- Terminal intro data-cmd = the command, the text inside = its output. -->
+    <div class="term" id="term">
+      <div class="term-line" data-cmd="whoami">dj beck — student, lincoln-sudbury '28</div>
+      <div class="term-line" data-cmd="cat focus.txt">pentesting · homelab · networking</div>
+      <div class="term-line" data-cmd="ls ~/certs" id="term-certs"></div>
+    </div>
+
+    <div class="hero-side">
+      <div class="tag">sudbury, ma &nbsp;<span class="dim">42.38°N 71.42°W</span></div>
+      <a class="pill" href="#certs"><i>→</i>cd ~/certs</a>
+    </div>
+
+    <h1 class="mega" aria-label="DJ Beck, Security">
+      DJ Beck<span class="slash" aria-hidden="true">/</span><br>Security
+    </h1>
+  </section>
+
+  <!About>
+  <section class="block about" id="about">
+    <div class="label"><b>01</b> &nbsp;~/about</div>
+    <div>
+      <p>I'm an aspiring cybersecurity professional with a strong interest in <span class="u">penetration testing</span> and <span class="u">network security</span>, and a drive to understand how systems work and where they fail.</p>
+      <p>As a high school student, I'm building a solid foundation through hands-on practice and industry-recognized coursework, with a focus on network security, vulnerability management, and governance &amp; risk frameworks.</p>
+      </div>
+  </section>
+
+  <!Certifications>
+  <section class="block" id="certs">
+    <div class="label"><b>02</b> &nbsp;~/certs</div>
+    <div>
+      <div class="certs-head">
+        <h2>Certs<sup id="cert-count">(00)</sup></h2>
+        <span class="hint">click a card to expand</span>
+      </div>
+    </div>
+
+    <div class="cert-grid" id="cert-grid"></div>
+
+    <div class="skills">
+      <h3>Skills &amp; tools</h3>
+      <ul class="chips" id="skills"></ul>
+    </div>
+  </section>
+
+  <!Contact>
+  <section class="block" id="contact">
+    <div class="label"><b>03</b> &nbsp;~/contact</div>
+    <div>
+      <a class="contact-big" href="mailto:david.j.beck28@gmail.com">david.j.beck28@gmail.com</a>
+      <div class="links">
+        <a href="https://github.com/d-j-beck" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://linkedin.com/in/your-profile" target="_blank" rel="noopener">LinkedIn ↗</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <span>© <span id="year"></span> David Beck</span>
+  <a href="#top" style="text-decoration:none">Back to top ↑</a>
+</footer>
+
+<script>
+
+const CERTS = [
+  {
+    title: "Cybersecurity Fundamentals",
+    issuer: "IBM",
+    date: "2026",
+    image: "https://images.credly.com/size/340x340/images/50b96632-6cbb-40b7-ac0e-b83f49ff7f94/image.png",
+    link: "https://www.credly.com/badges/d1690829-130a-40d6-a26f-76fb513f4f24",
+    pdf: "",
+    credentialId: "d1690829-130a-40d6-a26f-76fb513f4f24",
+    description: "Covers the core concepts behind modern cybersecurity: threat actors and attack types, the CIA triad, cryptography basics, network and application security, and the roles that make up a security team. Earned by completing coursework and assessments on foundational security principles and terminology."
+  },
+  {
+    title: "Governance, Risk, Compliance, and Data Privacy",
+    issuer: "IBM",
+    date: "2026",
+    image: "https://images.credly.com/size/340x340/images/5d324f5d-18fa-43ee-8321-be88763c9e14/image.png",
+    link: "https://www.credly.com/badges/f1eb7e47-4068-4d96-9012-ffa2a2468dc4",
+    pdf: "",
+    credentialId: "f1eb7e47-4068-4d96-9012-ffa2a2468dc4",
+    description: "Covers how organizations manage security risk at a program level: governance frameworks (NIST, ISO 27001), risk assessment and treatment, regulatory compliance, and data privacy laws like GDPR and CCPA. Gave me a working sense of how policy and compliance shape day-to-day security decisions."
+  },
+  {
+    title: "Vulnerability Management",
+    issuer: "IBM",
+    date: "2026",
+    image: "https://images.credly.com/size/340x340/images/2fdda845-70ac-493d-9f37-533773d63be0/image.png",
+    link: "https://www.credly.com/badges/e172070a-6ac5-460c-a119-84990ce58e2b",
+    pdf: "",
+    credentialId: "e172070a-6ac5-460c-a119-84990ce58e2b",
+    description: "Covers the vulnerability management lifecycle: identifying assets, scanning for weaknesses, scoring severity with CVSS, prioritizing remediation, and verifying fixes. Includes hands-on practice with vulnerability scanning tools and reading real CVE data."
+  },
+  {
+    title: "System and Network Security",
+    issuer: "IBM",
+    date: "2026",
+    image: "https://images.credly.com/size/340x340/images/82e061d5-ce91-403d-8078-f213fd03ac62/image.png",
+    link: "https://www.credly.com/badges/c138bac5-bb15-42db-86ba-32b205ee170d",
+    pdf: "",
+    credentialId: "c138bac5-bb15-42db-86ba-32b205ee170d",
+    description: "Covers securing systems and networks against common attack vectors: firewalls, VPNs, IDS/IPS, endpoint protection, OS hardening, and network segmentation."
+  },
+  {
+    title: "Cloud Security",
+    issuer: "IBM",
+    date: "2026",
+    image: "https://images.credly.com/size/340x340/images/8ea090d1-d6da-43f3-8ce2-940ab5345f22/image.png",
+    link: "https://www.credly.com/badges/e4bd0bc8-efaf-4104-b476-f2d0bcc484c4",
+    pdf: "",
+    credentialId: "e4bd0bc8-efaf-4104-b476-f2d0bcc484c4",
+    description: "Covers securing cloud environments: cloud service and deployment models, the shared responsibility model, identity and access management, data protection and encryption, and common cloud threats and misconfigurations. Also introduces cloud security monitoring and compliance considerations."
+  }
+];
+
+// Skills
+const SKILLS = ["Linux", "Windows", "Networking", "Nmap", "Wireshark", "Python", "C", "Bash"];
+
+// Rendering
+function placeholderBadge(title) {
+  const initials = title.split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+    <polygon points="60,6 107,33 107,87 60,114 13,87 13,33" fill="#111"/>
+    <polygon points="60,16 98,38 98,82 60,104 22,82 22,38" fill="none" stroke="#12a150" stroke-width="2"/>
+    <text x="60" y="70" text-anchor="middle" font-family="monospace" font-size="30" fill="#fff">${initials}</text>
+  </svg>`;
+  return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+}
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c]));
+
+function renderCerts() {
+  const grid = document.getElementById("cert-grid");
+  grid.innerHTML = CERTS.map((c, i) => {
+    const img = c.image || placeholderBadge(c.title);
+    const id = `cert-${i}`;
+    return `
+    <article class="cert" id="${id}">
+      <button class="cert-toggle" aria-expanded="false" aria-controls="${id}-detail">
+        <div class="cert-img"><img src="${esc(img)}" alt="" loading="lazy"></div>
+        <div class="cert-meta"><span>${esc(c.issuer)} · ${esc(c.date)}</span><span class="cert-plus">Details</span></div>
+        <div class="cert-title" title="${esc(c.title)}">${esc(c.title)}</div>
+      </button>
+      <div class="cert-detail" id="${id}-detail" role="region" aria-label="${esc(c.title)} details">
+        <div class="cert-img"><img src="${esc(img)}" alt="${esc(c.title)} badge"></div>
+        <div>
+          <div class="cert-meta"><span>${String(i + 1).padStart(2, "0")} / ${String(CERTS.length).padStart(2, "0")}</span></div>
+          <h3>${esc(c.title)}</h3>
+          ${c.description ? `<p>${esc(c.description)}</p>` : ""}
+          <dl class="facts">
+            <dt>Issuer</dt><dd>${esc(c.issuer)}</dd>
+            <dt>Earned</dt><dd>${esc(c.date)}</dd>
+            ${c.credentialId ? `<dt>Credential ID</dt><dd>${esc(c.credentialId)}</dd>` : ""}
+          </dl>
+          <div class="detail-actions">
+            ${c.link ? `<a class="pill dark" href="${esc(c.link)}" target="_blank" rel="noopener"><i>↗</i>Verify credential</a>` : ""}
+            ${c.pdf ? `<a class="pill" href="${esc(c.pdf)}" target="_blank" rel="noopener"><i>↓</i>Certificate PDF</a>` : ""}
+            <button class="close">✕ Close</button>
+          </div>
+        </div>
+      </div>
+    </article>`;
+  }).join("");
+
+  document.getElementById("cert-count").textContent = `(${String(CERTS.length).padStart(2, "0")})`;
+
+  grid.querySelectorAll(".cert").forEach(card => {
+    const toggle = card.querySelector(".cert-toggle");
+    toggle.addEventListener("click", () => openCard(card));
+    card.querySelector(".close").addEventListener("click", () => closeCard(card, true));
+  });
+}
+
+function openCard(card) {
+  document.querySelectorAll(".cert.open").forEach(c => closeCard(c, false));
+  card.classList.add("open");
+  card.querySelector(".cert-toggle").setAttribute("aria-expanded", "true");
+  card.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  card.querySelector(".cert-detail a, .cert-detail .close").focus({ preventScroll: true });
+}
+function closeCard(card, refocus) {
+  card.classList.remove("open");
+  const t = card.querySelector(".cert-toggle");
+  t.setAttribute("aria-expanded", "false");
+  if (refocus) t.focus();
+}
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") document.querySelectorAll(".cert.open").forEach(c => closeCard(c, true));
+});
+
+document.getElementById("skills").innerHTML = SKILLS.map(s => `<li>${esc(s)}</li>`).join("");
+document.getElementById("year").textContent = new Date().getFullYear();
+renderCerts();
+
+// Live-filters the certs grid and skills chips as the terminal search box is used.
+function applySearch(query) {
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll("#cert-grid .cert").forEach((card, i) => {
+    const c = CERTS[i];
+    const match = !q || c.title.toLowerCase().includes(q) || c.issuer.toLowerCase().includes(q);
+    card.style.display = match ? "" : "none";
+    if (!match && card.classList.contains("open")) closeCard(card, false);
+  });
+  document.querySelectorAll("#skills li").forEach(li => {
+    li.style.display = (!q || li.textContent.toLowerCase().includes(q)) ? "" : "none";
+  });
+}
+
+// Terminal typing effect, then the prompt turns into a live search box.
+(function typeTerminal() {
+  const term = document.getElementById("term");
+  const PROMPT = "dj@lsrhs:~$ ";
+  document.getElementById("term-certs").textContent =
+    CERTS.map(c => c.title.toLowerCase().replace(/\s+/g, "_")).join("   ");
+
+  const lines = [...term.querySelectorAll(".term-line")].map(el => ({ cmd: el.dataset.cmd, out: el.textContent }));
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const build = (cmd, out, done) =>
+    `<span class="prompt">${esc(PROMPT)}</span><span class="cmd">${esc(cmd)}</span>` +
+    (done ? `<span class="out">${esc(out)}</span>` : "");
+
+  const linesHtml = lines.map(l => `<div class="term-line">${build(l.cmd, l.out, true)}</div>`).join("");
+  const fullForGhost = linesHtml +
+    `<div class="term-line"><span class="prompt">${esc(PROMPT)}</span><span class="caret"></span></div>`;
+
+  function appendSearchRow(container) {
+    const row = document.createElement("div");
+    row.className = "term-line search-line";
+    row.innerHTML = `<span class="prompt">${esc(PROMPT)}</span>` +
+      `<span class="term-input-wrap">` +
+        `<input class="term-input" type="text" placeholder="search certs & skills…" aria-label="Search certs and skills" autocomplete="off">` +
+        `<span class="caret" aria-hidden="true"></span>` +
+      `</span>`;
+    container.appendChild(row);
+    const wrap = row.querySelector(".term-input-wrap");
+    const input = wrap.querySelector(".term-input");
+    const caret = wrap.querySelector(".caret");
+    const moveCaret = () => { caret.style.left = (input.selectionStart ?? input.value.length) + "ch"; };
+
+    input.addEventListener("input", () => { applySearch(input.value); moveCaret(); });
+    input.addEventListener("keyup", moveCaret);
+    input.addEventListener("click", moveCaret);
+    input.addEventListener("focus", () => { wrap.classList.add("focused"); moveCaret(); });
+    input.addEventListener("blur", () => wrap.classList.remove("focused"));
+    input.addEventListener("keydown", e => {
+      if (e.key === "Escape") { input.value = ""; applySearch(""); input.blur(); }
+    });
+    input.focus({ preventScroll: true });
+  }
+
+  if (reduce) {
+    term.innerHTML = linesHtml;
+    appendSearchRow(term);
+    return;
+  }
+
+  /* An invisible copy of the finished terminal holds the space, so the
+     button and headline never move while the text types out. */
+  term.classList.add("layered");
+  term.innerHTML = `<div class="ghost" aria-hidden="true">${fullForGhost}</div><div class="live"></div>`;
+  const out = term.querySelector(".live");
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  (async () => {
+    await sleep(400);
+    for (const l of lines) {
+      const row = document.createElement("div");
+      row.className = "term-line";
+      out.appendChild(row);
+      for (let i = 0; i <= l.cmd.length; i++) {
+        row.innerHTML = build(l.cmd.slice(0, i), "", false) + `<span class="caret"></span>`;
+        await sleep(55 + Math.random() * 60);
+      }
+      await sleep(250);
+      row.innerHTML = build(l.cmd, l.out, true);
+      await sleep(350);
     }
-    .center-screen {
-      display: flex;
-      justify-content: center;
-      align-items: center;     
-      height: 100vh;
-    }
-  </style>
-  
-<div class=center-screen>
-  <p class=ibm-plex-mono-bold>
-    Under Construction</p>
-</div>
+    appendSearchRow(out);
+  })();
+})();
+</script>
+</body>
 </html>
